@@ -1,0 +1,447 @@
+bash
+
+cat > /mnt/user-data/outputs/termsheet-playbook.html << 'HTMLEOF'
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Term Sheet Playbook</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --olive:#1E4D2B;--olive-mid:#2A6038;--olive-deep:rgba(30,77,43,0.9);--olive-strip:#1E4D2B;
+  --amber:#C8A96E;--amber-muted:#8A6D3B;
+  --risk-c:#E24B4A;--risk-h:#EF9F27;--risk-m:#378ADD;--risk-l:#639922;
+  --surface:#ffffff;--surface2:#f5f5f5;--border:#e8e8e8;--border2:#d0d0d0;
+  --txt:#111111;--txt2:#444444;--txt3:#888888;
+  --sb-txt:#fff;--sb-txt2:rgba(255,255,255,0.78);--sb-txt3:rgba(255,255,255,0.45);
+  --radius:10px;--radius-sm:6px;--radius-lg:14px;
+}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f0f0f0;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
+.app{width:900px;max-width:100%;border:0.5px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;background:var(--surface);display:flex;flex-direction:column;height:680px;box-shadow:0 8px 32px rgba(0,0,0,0.10)}
+
+/* ACCENT STRIP */
+.accent-strip{height:3px;background:var(--olive-strip);flex-shrink:0}
+
+/* TOPBAR */
+.topbar{height:44px;border-bottom:0.5px solid var(--border);display:flex;align-items:center;padding:0 18px;gap:12px;background:var(--surface);flex-shrink:0}
+.logo{font-size:12px;font-style:italic;font-weight:400;color:var(--txt2)}
+.tb-spacer{flex:1}
+.mode-pill{display:flex;border:0.5px solid var(--border2);border-radius:20px;overflow:hidden;flex-shrink:0}
+.mp-opt{font-size:11px;padding:5px 14px;cursor:pointer;color:var(--txt3);transition:all .2s;white-space:nowrap;user-select:none}
+.mp-opt.active-f{background:var(--olive);color:#fff}
+.mp-opt.active-i{background:#4a4a55;color:#fff}
+.tb-icon{width:30px;height:30px;display:flex;align-items:center;justify-content:center;border-radius:var(--radius-sm);border:0.5px solid var(--border);cursor:pointer;color:var(--txt3);font-size:15px;flex-shrink:0;transition:background .15s}
+.tb-icon:hover{background:var(--surface2)}
+
+.body{display:flex;flex:1;overflow:hidden}
+
+/* SIDEBAR */
+.sidebar{width:224px;border-right:none;display:flex;flex-direction:column;flex-shrink:0;transition:width .3s cubic-bezier(.4,0,.2,1),opacity .25s;overflow:hidden;background:var(--olive-deep)}
+.sidebar.hidden{width:0;opacity:0}
+.sb-scroll{overflow-y:auto;flex:1;padding:8px 0}
+.sb-section{padding:10px 16px 4px;font-size:9px;font-weight:700;color:var(--sb-txt3);text-transform:uppercase;letter-spacing:.8px}
+.clause{display:flex;align-items:center;gap:9px;padding:8px 16px;cursor:pointer;border-left:2px solid transparent;transition:background .12s;user-select:none}
+.clause.active{background:rgba(255,255,255,0.15);border-left-color:var(--amber)}
+.clause:hover:not(.active){background:rgba(255,255,255,0.08)}
+.clause-name{font-size:12px;color:var(--sb-txt2);flex:1;line-height:1.3}
+.clause.active .clause-name{color:var(--sb-txt);font-weight:500}
+.rdot{width:5px;height:5px;border-radius:50%;flex-shrink:0}
+.rd-c{background:var(--risk-c)}.rd-h{background:var(--risk-h)}.rd-m{background:var(--risk-m)}.rd-l{background:var(--risk-l)}
+.sb-footer{padding:10px 16px;border-top:1px solid rgba(255,255,255,0.1);flex-shrink:0}
+.legend{display:flex;gap:10px;flex-wrap:wrap}
+.lg-item{display:flex;align-items:center;gap:4px;font-size:10px;color:var(--sb-txt3)}
+.lg-d{width:5px;height:5px;border-radius:50%}
+
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;background:var(--surface);position:relative;min-width:0}
+
+/* HOME */
+.home-screen{display:none;flex-direction:column;align-items:center;justify-content:center;height:100%;padding:48px;text-align:center;position:relative}
+.home-screen.active{display:flex}
+.home-title{font-size:24px;font-weight:500;color:var(--txt);letter-spacing:-0.5px;margin-bottom:30px}
+.search-outer{width:100%;max-width:520px;background:var(--surface);border:0.5px solid var(--border2);border-radius:var(--radius-lg);padding:11px 16px;display:flex;align-items:center;gap:10px;cursor:text;transition:border-color .2s;box-shadow:0 1px 4px rgba(0,0,0,0.05)}
+.search-outer:focus-within{border-color:var(--olive);box-shadow:0 0 0 3px rgba(30,77,43,0.08)}
+.search-icon{font-size:17px;color:var(--txt3);flex-shrink:0}
+.search-inner{flex:1;position:relative;height:22px;overflow:hidden}
+.search-phrase{position:absolute;top:0;left:0;font-size:13px;color:var(--txt3);white-space:nowrap;opacity:0;transition:opacity .2s,transform .2s}
+.search-phrase.visible{opacity:1}
+.search-phrase.exit{opacity:0;transform:translateY(-6px)}
+.search-input-real{position:absolute;top:0;left:0;width:100%;height:100%;background:none;border:none;outline:none;font-size:13px;color:var(--txt);font-family:inherit;display:none}
+.ask-btn{font-size:12px;padding:6px 15px;border-radius:20px;background:var(--olive);color:#fff;border:none;cursor:pointer;flex-shrink:0;transition:opacity .15s;white-space:nowrap}
+.ask-btn:hover{opacity:.85}
+.chips{display:flex;gap:7px;flex-wrap:wrap;justify-content:center;margin-top:18px;max-width:520px}
+.chip{font-size:11px;padding:5px 12px;border-radius:20px;border:0.5px solid var(--border2);color:var(--txt2);background:var(--surface);cursor:pointer;transition:border-color .15s;white-space:nowrap;user-select:none}
+.chip:hover{border-color:var(--olive);color:var(--txt)}
+.home-footnote{position:absolute;bottom:18px;left:0;right:0;text-align:center;font-size:11px;color:var(--txt3);padding:0 48px;line-height:1.7}
+
+/* PREVIEW */
+.preview-screen{display:none;flex-direction:column;height:100%;overflow:hidden}
+.preview-screen.active{display:flex}
+.prev-header{padding:16px 20px 0;background:var(--surface);border-bottom:0.5px solid var(--border);flex-shrink:0}
+.ph-top{display:flex;align-items:flex-start;gap:10px;margin-bottom:8px}
+.ph-meta{flex:1}
+.ph-eyebrow{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--amber-muted);margin-bottom:3px}
+.ph-title{font-size:17px;font-weight:500;color:var(--txt);letter-spacing:-0.3px}
+.ph-badge{font-size:10px;padding:3px 11px;border-radius:10px;background:#deeade;color:var(--olive);font-weight:600;margin-top:2px;white-space:nowrap}
+.ph-badge.inv{background:#ebebef;color:#4a4a55}
+.risk-pill{display:inline-flex;align-items:center;font-size:10px;padding:3px 9px;border-radius:10px;font-weight:600;margin-bottom:8px}
+.rp-h{background:#faeeda;color:#854f0b}.rp-c{background:#fdecec;color:#a32d2d}.rp-m{background:#e6f1fb;color:#185fa5}.rp-l{background:#eaf3de;color:#3b6d11}
+.prev-tabs{display:flex;border-top:0.5px solid var(--border)}
+.prev-tab{font-size:12px;padding:10px 16px;cursor:pointer;color:var(--txt3);border-bottom:2px solid transparent;transition:color .15s;white-space:nowrap;user-select:none}
+.prev-tab.active{color:var(--txt);border-bottom-color:var(--olive);font-weight:500}
+.prev-tab:hover:not(.active){color:var(--txt2)}
+.prev-body{flex:1;overflow-y:auto;padding:20px}
+.ppanel{display:none}
+.ppanel.active{display:block}
+.clause-meaning{font-size:13.5px;color:var(--txt);line-height:1.8;margin-bottom:22px}
+.clause-meaning p{margin-bottom:13px}
+.clause-meaning p:last-child{margin-bottom:0}
+.drafted-label{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--txt3);margin-bottom:9px;display:flex;align-items:center;gap:8px}
+.drafted-label::after{content:'';flex:1;height:0.5px;background:var(--border)}
+.drafted-box{background:var(--surface2);border:0.5px solid var(--border);border-radius:var(--radius-sm);padding:14px 16px}
+.drafted-text{font-size:11px;color:var(--txt2);line-height:1.9;font-family:'SF Mono','Fira Code',monospace;white-space:pre-wrap}
+.drafted-note{font-size:11px;color:var(--txt3);font-style:italic;line-height:1.6;margin-top:11px;padding-top:11px;border-top:0.5px solid var(--border)}
+.legal-block{border-radius:var(--radius-sm);padding:13px 15px;margin-bottom:10px}
+.legal-india{background:#f0ecfd;border:0.5px solid #d4c8f8}
+.legal-draft{background:#eaf3de;border:0.5px solid #c0d8a0}
+.legal-fema{background:#fdf0e4;border:0.5px solid #f0c88a}
+.legal-lbl{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px}
+.legal-india .legal-lbl{color:#534ab7}.legal-draft .legal-lbl{color:#3b6d11}.legal-fema .legal-lbl{color:#854f0b}
+.legal-india .legal-txt{font-size:12px;color:#3c3489;line-height:1.7}
+.legal-draft .legal-txt{font-size:12px;color:#27500a;line-height:1.7}
+.legal-fema .legal-txt{font-size:12px;color:#633806;line-height:1.7}
+.prev-footer{padding:11px 20px;border-top:0.5px solid var(--border);background:var(--surface);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.pf-meta{font-size:11px;color:var(--txt3)}
+.pf-actions{display:flex;gap:7px}
+.pf-btn{font-size:12px;padding:6px 14px;border-radius:20px;border:0.5px solid var(--border2);background:var(--surface);color:var(--txt);cursor:pointer;transition:background .12s;display:flex;align-items:center;gap:5px;user-select:none}
+.pf-btn:hover{background:var(--surface2)}
+.pf-btn.primary{background:var(--olive);color:#fff;border-color:transparent}
+.pf-btn.primary:hover{opacity:.85}
+
+/* RESULTS */
+.results-screen{display:none;flex-direction:column;height:100%;overflow:hidden}
+.results-screen.active{display:flex}
+.results-header{padding:15px 20px 11px;background:var(--surface);border-bottom:0.5px solid var(--border);flex-shrink:0}
+.query-echo{font-size:11px;color:var(--txt3);margin-bottom:4px;display:flex;align-items:center;gap:6px}
+.query-text{font-size:15px;font-weight:500;color:var(--txt);line-height:1.4}
+.rh-meta{display:flex;align-items:center;gap:10px;margin-top:6px}
+.rh-badge{font-size:10px;padding:2px 9px;border-radius:10px;background:#deeade;color:var(--olive);font-weight:600}
+.rh-badge.inv-mode{background:#ebebef;color:#4a4a55}
+.rh-dot{width:3px;height:3px;border-radius:50%;background:var(--border2)}
+.rh-txt{font-size:11px;color:var(--txt3)}
+.playbook-scroll{flex:1;overflow-y:auto;padding:16px 20px;display:flex;flex-direction:column;gap:12px}
+.chunk-row{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.chunk-card{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--radius-sm);padding:11px 13px}
+.cc-title{font-size:12px;font-weight:500;color:var(--txt);margin-bottom:6px;line-height:1.3}
+.cc-tags{display:flex;gap:4px;flex-wrap:wrap}
+.tag{font-size:10px;padding:2px 7px;border-radius:5px}
+.tag-c{background:#fcebeb;color:#a32d2d}.tag-h{background:#faeeda;color:#854f0b}.tag-m{background:#e6f1fb;color:#185fa5}.tag-l{background:#eaf3de;color:#3b6d11}.tag-std{background:var(--surface2);color:var(--txt2)}
+.pb-card{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--radius-lg);overflow:hidden}
+.pb-header{padding:13px 17px;border-bottom:0.5px solid var(--border);display:flex;align-items:flex-start;gap:10px}
+.pb-title-wrap{flex:1}
+.pb-eyebrow{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--amber-muted);margin-bottom:2px}
+.pb-title{font-size:16px;font-weight:500;color:var(--txt);letter-spacing:-0.2px}
+.pb-mode{font-size:10px;padding:3px 10px;border-radius:10px;background:#deeade;color:var(--olive);font-weight:600;flex-shrink:0}
+.pb-mode.inv{background:#ebebef;color:#4a4a55}
+.pb-tabs{display:flex;border-bottom:0.5px solid var(--border);background:var(--surface)}
+.pb-tab{font-size:12px;padding:9px 15px;cursor:pointer;color:var(--txt3);border-bottom:2px solid transparent;transition:color .15s;white-space:nowrap;user-select:none}
+.pb-tab.active{color:var(--txt);border-bottom-color:var(--olive);font-weight:500}
+.pb-tab:hover:not(.active){color:var(--txt2)}
+.tab-panel{display:none;padding:15px 17px}
+.tab-panel.active{display:block}
+.summary-text-sm{font-size:13px;color:var(--txt2);line-height:1.75;margin-bottom:13px}
+.risk-flag{display:flex;gap:9px;align-items:flex-start;padding:11px 13px;border-radius:var(--radius-sm);margin-bottom:9px}
+.rf-warn{background:#faeeda;border:0.5px solid #f5c478}.rf-crit{background:#fdecec;border:0.5px solid #f5a0a0}.rf-info{background:#deeade;border:0.5px solid #a8c8a8}
+.rf-icon{font-size:15px;flex-shrink:0;margin-top:1px}
+.rf-txt{font-size:12px;line-height:1.5}.rf-txt strong{font-weight:600}
+.rf-warn .rf-txt,.rf-warn .rf-icon{color:#854f0b}.rf-crit .rf-txt,.rf-crit .rf-icon{color:#a32d2d}.rf-info .rf-txt,.rf-info .rf-icon{color:var(--olive-mid)}
+.position-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border);border-radius:var(--radius-sm);overflow:hidden;margin-bottom:13px}
+.pos-col{background:var(--surface);padding:13px}
+.pos-lbl{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px}
+.pos-lbl.f{color:var(--olive-mid)}.pos-lbl.i{color:#a32d2d}
+.pos-text{font-size:12px;color:var(--txt2);line-height:1.65}
+.sec-lbl{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--txt3);margin-bottom:7px}
+.tactic-list{display:flex;flex-direction:column;gap:7px;margin-bottom:13px}
+.tactic{display:flex;gap:9px;align-items:flex-start;padding:9px 11px;background:var(--surface2);border-radius:var(--radius-sm)}
+.tac-n{width:19px;height:19px;border-radius:50%;background:var(--olive);color:#fff;font-size:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.tac-txt{font-size:12px;color:var(--txt2);line-height:1.55}.tac-txt strong{color:var(--txt);font-weight:600}
+.market-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-bottom:13px}
+.mkt-cell{background:var(--surface2);border-radius:var(--radius-sm);padding:11px;text-align:center}
+.mkt-val{font-size:18px;font-weight:500;color:var(--txt);margin-bottom:2px}
+.mkt-lbl{font-size:10px;color:var(--txt3);line-height:1.35}
+.tier-wrap{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:13px}
+.tier-tag{font-size:11px;padding:3px 11px;border-radius:20px;border:0.5px solid var(--border);color:var(--txt2);background:var(--surface2)}
+.tier-tag.lead{background:#deeade;border-color:#a8c8a8;color:var(--olive)}
+.alt-list{display:flex;flex-direction:column;gap:7px}
+.alt-item{border:0.5px solid var(--border);border-radius:var(--radius-sm);overflow:hidden}
+.alt-top{display:flex;align-items:center;gap:9px;padding:9px 11px;cursor:pointer;background:var(--surface);transition:background .12s;user-select:none}
+.alt-top:hover{background:var(--surface2)}
+.alt-bullet{width:8px;height:8px;border-radius:50%;border:1.5px solid var(--border2);flex-shrink:0}
+.alt-bullet.on{background:var(--amber);border-color:var(--amber)}
+.alt-name{font-size:12px;color:var(--txt);font-weight:500;flex:1}
+.alt-badge{font-size:10px;padding:2px 9px;border-radius:5px}
+.alt-body{padding:9px 11px;border-top:0.5px solid var(--border);background:var(--surface2);display:none}
+.alt-body.open{display:block}
+.alt-body p{font-size:12px;color:var(--txt2);line-height:1.65}
+.results-footer{padding:11px 20px;border-top:0.5px solid var(--border);background:var(--surface);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.rf-meta{font-size:11px;color:var(--txt3)}
+.rf-actions{display:flex;gap:7px}
+.rf-btn{font-size:12px;padding:6px 13px;border-radius:20px;border:0.5px solid var(--border2);background:var(--surface);color:var(--txt);cursor:pointer;display:flex;align-items:center;gap:5px;transition:background .12s;user-select:none}
+.rf-btn:hover{background:var(--surface2)}
+.rf-btn.primary{background:var(--olive);color:#fff;border-color:transparent}
+.rf-btn.primary:hover{opacity:.85}
+</style>
+</head>
+<body>
+<div class="app" id="app">
+  <div class="accent-strip"></div>
+  <div class="topbar">
+    <div class="logo"><em>For Internal Discussion Only</em></div>
+    <div class="tb-spacer"></div>
+    <div class="mode-pill">
+      <div class="mp-opt active-f" data-mode="f" onclick="setMode('f')">Founder counsel</div>
+      <div class="mp-opt" data-mode="i" onclick="setMode('i')">Investor counsel</div>
+    </div>
+    <div class="tb-icon" onclick="toggleSidebar()" title="Toggle clauses"><i class="ti ti-layout-sidebar"></i></div>
+  </div>
+
+  <div class="body">
+    <div class="sidebar" id="sidebar">
+      <div class="sb-scroll">
+        <div class="sb-section">Clauses</div>
+        <div class="clause active" onclick="openPreview(this,'lp')"><span class="rdot rd-h"></span><span class="clause-name">Liquidation preference</span></div>
+        <div class="clause" onclick="openPreview(this,'ad')"><span class="rdot rd-c"></span><span class="clause-name">Anti-dilution</span></div>
+        <div class="clause" onclick="openPreview(this,'br')"><span class="rdot rd-m"></span><span class="clause-name">Board representation</span></div>
+        <div class="clause" onclick="openPreview(this,'pp')"><span class="rdot rd-h"></span><span class="clause-name">Affirmative voting</span></div>
+        <div class="clause" onclick="openPreview(this,'pr')"><span class="rdot rd-m"></span><span class="clause-name">Pre-emptive rights</span></div>
+        <div class="clause" onclick="openPreview(this,'da')"><span class="rdot rd-l"></span><span class="clause-name">Drag-along rights</span></div>
+        <div class="clause" onclick="openPreview(this,'ex')"><span class="rdot rd-h"></span><span class="clause-name">Exit rights / put-call</span></div>
+        <div class="clause" onclick="openPreview(this,'ir')"><span class="rdot rd-l"></span><span class="clause-name">Information rights</span></div>
+        <div class="clause" onclick="openPreview(this,'rr')"><span class="rdot rd-c"></span><span class="clause-name">Redemption rights</span></div>
+        <div class="clause" onclick="openPreview(this,'fv')"><span class="rdot rd-l"></span><span class="clause-name">Founder vesting</span></div>
+      </div>
+      <div class="sb-footer">
+        <div class="legend">
+          <div class="lg-item"><div class="lg-d" style="background:var(--risk-c)"></div>Critical</div>
+          <div class="lg-item"><div class="lg-d" style="background:var(--risk-h)"></div>High</div>
+          <div class="lg-item"><div class="lg-d" style="background:var(--risk-m)"></div>Medium</div>
+          <div class="lg-item"><div class="lg-d" style="background:var(--risk-l)"></div>Low</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="main">
+      <!-- SCREEN 1: HOME -->
+      <div class="home-screen active" id="home-screen">
+        <div class="home-title">Term Sheet Playbook</div>
+        <div class="search-outer" id="search-outer">
+          <i class="ti ti-search search-icon"></i>
+          <div class="search-inner">
+            <div class="search-phrase visible" id="ph0">"What should I push back on for anti-dilution?"</div>
+            <div class="search-phrase" id="ph1">"When does fall-away threshold apply?"</div>
+            <div class="search-phrase" id="ph2">"Is put option enforceable in India?"</div>
+            <div class="search-phrase" id="ph3">"Broad-based weighted average — market standard?"</div>
+            <div class="search-phrase" id="ph4">"Founder vesting — double-trigger acceleration?"</div>
+            <input class="search-input-real" id="search-input" placeholder="Ask about any clause..." />
+          </div>
+          <button class="ask-btn" onclick="runQuery()">Ask ↗</button>
+        </div>
+        <div class="chips">
+          <div class="chip" onclick="runQueryFor('lp')">Liquidation preference</div>
+          <div class="chip" onclick="runQueryFor('ad')">Anti-dilution</div>
+          <div class="chip" onclick="runQueryFor('ex')">Put option enforceability</div>
+          <div class="chip" onclick="runQueryFor('da')">Drag-along threshold</div>
+        </div>
+        <div class="home-footnote">Companies Act 2013 · FEMA</div>
+      </div>
+
+      <!-- SCREEN 2: PREVIEW -->
+      <div class="preview-screen" id="preview-screen">
+        <div class="prev-header">
+          <div class="ph-top">
+            <div class="ph-meta">
+              <div class="ph-eyebrow">Clause Overview</div>
+              <div class="ph-title" id="ph-title">Liquidation Preference</div>
+            </div>
+            <div class="ph-badge" id="ph-badge">Founder counsel</div>
+          </div>
+          <div id="ph-risk"></div>
+          <div class="prev-tabs">
+            <div class="prev-tab active" onclick="switchPrevTab('summary',this)">Summary</div>
+            <div class="prev-tab" onclick="switchPrevTab('legal',this)">Indian law</div>
+          </div>
+        </div>
+        <div class="prev-body">
+          <div class="ppanel active" id="ppanel-summary">
+            <div class="clause-meaning" id="prev-meaning"></div>
+            <div class="drafted-label">Example SHA language</div>
+            <div class="drafted-box">
+              <div class="drafted-text" id="prev-draft"></div>
+              <div class="drafted-note" id="prev-note"></div>
+            </div>
+          </div>
+          <div class="ppanel" id="ppanel-legal">
+            <div id="prev-legal-blocks"></div>
+          </div>
+        </div>
+        <div class="prev-footer">
+          <div class="pf-meta" id="pf-meta">Liquidation preference</div>
+          <div class="pf-actions">
+            <div class="pf-btn" onclick="goHome()"><i class="ti ti-arrow-left" style="font-size:12px"></i> Back</div>
+            <div class="pf-btn primary" onclick="deepDive()">Full playbook ↗</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SCREEN 3: FULL PLAYBOOK -->
+      <div class="results-screen" id="results-screen">
+        <div class="results-header">
+          <div class="query-echo"><i class="ti ti-search" style="font-size:12px"></i> Query</div>
+          <div class="query-text" id="query-display">Liquidation preference</div>
+          <div class="rh-meta">
+            <div class="rh-badge" id="mode-badge">Founder counsel</div>
+            <div class="rh-dot"></div>
+            <div class="rh-txt" id="clause-ref">Companies Act 2013 §47</div>
+          </div>
+        </div>
+        <div class="playbook-scroll">
+          <div class="chunk-row" id="chunk-row"></div>
+          <div class="pb-card">
+            <div class="pb-header">
+              <div class="pb-title-wrap">
+                <div class="pb-eyebrow">Negotiation playbook · India (unlisted)</div>
+                <div class="pb-title" id="pb-title">Liquidation Preference</div>
+              </div>
+              <div class="pb-mode" id="pb-mode-badge">Founder counsel</div>
+            </div>
+            <div class="pb-tabs">
+              <div class="pb-tab active" onclick="switchResultTab('summary',this)">Summary</div>
+              <div class="pb-tab" onclick="switchResultTab('positions',this)">Positions</div>
+              <div class="pb-tab" onclick="switchResultTab('market',this)">Market practice</div>
+              <div class="pb-tab" onclick="switchResultTab('alternatives',this)">Alternatives</div>
+              <div class="pb-tab" onclick="switchResultTab('legal',this)">India legal</div>
+            </div>
+            <div class="tab-panel active" id="tab-summary"></div>
+            <div class="tab-panel" id="tab-positions"></div>
+            <div class="tab-panel" id="tab-market"></div>
+            <div class="tab-panel" id="tab-alternatives"></div>
+            <div class="tab-panel" id="tab-legal"></div>
+          </div>
+        </div>
+        <div class="results-footer">
+          <div class="rf-meta" id="footer-meta">Liquidation preference · Founder counsel</div>
+          <div class="rf-actions">
+            <div class="rf-btn" onclick="goHome()"><i class="ti ti-search" style="font-size:12px"></i> New query</div>
+            <div class="rf-btn" onclick="goHome()"><i class="ti ti-arrow-left" style="font-size:12px"></i> Back</div>
+            <div class="rf-btn primary"><i class="ti ti-download" style="font-size:12px"></i> Export</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const CLAUSES={lp:{name:"Liquidation Preference",riskType:"rp-h",riskLabel:"High impact",ref:"Companies Act 2013 §47 · FEMA NDI Rules 2019",chunks:[{title:"1x Non-Participating — market standard",tags:["low risk","market std"]},{title:"1x Participating Preferred — non-standard",tags:["high","investor-friendly"]}],meaning:`<p>When a company is sold, wound up, or undergoes a merger, investors don't automatically share proceeds equally with founders. A liquidation preference clause determines <strong>who gets paid first, and how much</strong>, before the remaining money is split among all shareholders.</p><p>In practice: if an investor put in ₹20 crore and has a <em>1x non-participating</em> preference, they get their ₹20 crore back first. Whatever is left goes to the founders and other common shareholders. If the investor has a <em>participating</em> preference, they first take back their ₹20 crore, and then <em>also</em> participate in the remaining proceeds as if they were an ordinary shareholder — effectively getting paid twice.</p><p>A <em>2x preference</em> means the investor must recover twice their invested amount (₹40 crore) before anyone else sees a rupee. On a modest exit, this can leave founders with nothing.</p>`,prevDraft:`7.1 Liquidation Preference. In the event of any liquidation, dissolution, winding up or Deemed Liquidation Event, the Investor shall be entitled to receive, in preference to the holders of Equity Shares, an amount per Preference Share equal to [1x] times the Original Issue Price, plus any declared but unpaid dividends.\n\nFor the avoidance of doubt, the Investor shall not participate further in any remaining proceeds after recovery of the Liquidation Preference.\n\n"Deemed Liquidation Event" means any merger, amalgamation, acquisition, or sale of all or substantially all of the assets of the Company.`,prevDraftNote:`"Deemed Liquidation Event" definition is critical. Without it, investors may not receive preference on M&A exits — the most common exit scenario in India.`,prevLegal:[{type:"india",lbl:"Companies Act 2013 §47",txt:"Preference shareholders may have priority on return of capital as per the terms of issue. Participatory rights must be explicitly documented in the SHA and AOA — implied participatory rights are not recognised under Indian company law."},{type:"draft",lbl:"Drafting note",txt:"Define \"liquidation event\" to include deemed liquidation — M&A, change of control, asset sale. Without this, investors may not be entitled to preference on M&A exits. Common drafting gap in Indian term sheets."},{type:"fema",lbl:"FEMA — NDI Rules 2019",txt:"Foreign investors receiving preference shares must ensure compliance with FEMA (Non-Debt Instruments) Rules 2019. If the instrument resembles debt (guaranteed return), it may trigger ECB classification under the RBI framework."}],summary:"1x non-participating is market standard for Series A in India. On a typical 3–5x exit, participating preferred cuts founder proceeds by 30–40%. 2x or higher is non-standard and a red flag about investor intent.",riskFlags:[{type:"warn",icon:"ti-alert-triangle",text:"<strong>1x Participating Preferred:</strong> At a ₹200Cr exit, investor takes ₹57Cr+ vs ₹20Cr on non-participating. Founders lose ₹37Cr+. Cap at 2.5x if investor insists."},{type:"crit",icon:"ti-ban",text:"<strong>2x+ Preference:</strong> Absolute rejection. Not market standard in India."}],founder:"Push for 1x non-participating. Frame as market standard. If investor insists on participating, cap it at 2.5x with a hard conversion right above that.",investor:"Counter by noting risk capital deserves downside protection on low-multiple exits. If participating, propose 1x with a 3x cap.",tactics:[{t:"Model the rupee impact.",b:"Run exit math at ₹100Cr, ₹200Cr, ₹500Cr scenarios."},{t:"Trade on the cap.",b:"If investor won't drop participating preferred, negotiate a hard conversion cap at 2.5–3x."},{t:"Resist 2x+ as a starting position.",b:"If term sheet opens at 2x, treat it as a signal about the investor."}],market:{stats:[{v:"1x non-part.",l:"Market standard for Series A India"},{v:"3–5x",l:"Typical India VC exit multiple"},{v:"Rare",l:"Uncapped participating preferred"}],text:"1x non-participating is market standard for Series A in India.",tiers:["Lead Investor","Majority Investors","Other Investors","Founders/Promoters"],lead:true},alternatives:[{name:"1x non-participating preferred",badge:"tag-l",label:"Preferred",open:true,body:"Investor recovers 1x first. All remaining proceeds go to common shareholders. No double-dipping. Market standard."},{name:"1x participating with 2.5–3x cap",badge:"tag-h",label:"Compromise",body:"Investor participates until achieving 2.5–3x return, then converts to common."},{name:"2x+ liquidation preference",badge:"tag-c",label:"Reject",body:"Investor recovers 2x+ before anyone receives proceeds. Catastrophic on flat exits."}],legal:[{type:"india",lbl:"Companies Act 2013 §47",txt:"Preference shareholders may have priority on return of capital as per the terms of issue. Participatory rights must be explicitly documented in the SHA and AOA."},{type:"draft",lbl:"Drafting note",txt:"Define \"liquidation event\" to include deemed liquidation — M&A, change of control, asset sale."},{type:"fema",lbl:"FEMA — NDI Rules 2019",txt:"If the instrument resembles debt (guaranteed return), it may trigger ECB classification under the RBI framework."}]},ad:{name:"Anti-Dilution",riskType:"rp-c",riskLabel:"Critical risk",ref:"Companies Act 2013 · FEMA NDI Rules 2019",chunks:[{title:"Broad-based weighted average — market standard",tags:["low risk","market std"]},{title:"Full ratchet — non-standard, reject",tags:["critical","investor-friendly"]}],meaning:`<p>When a startup raises a new round of funding at a lower valuation than the previous round — known as a <strong>down-round</strong> — existing investors end up owning a smaller percentage of the company than they paid for. An anti-dilution clause is the investor's protection against this: it adjusts the price at which the investor's shares convert into equity, giving them more shares to compensate for the drop in value.</p><p>The key question is how aggressively the adjustment works. Under a <em>broad-based weighted average</em> formula, the adjustment is moderate and takes into account all shares in the company. Under a <em>full ratchet</em>, the investor's entire investment is repriced to the new, lower price — which can dramatically increase the investor's ownership percentage, sometimes to a majority stake, even if only a small number of new shares were issued at the lower price.</p><p>The drafting details — specifically whether the formula is "broad-based" or "narrow-based" — can make a difference of millions of rupees in effective ownership. Term sheets frequently say just "weighted average" without specifying which type. Always demand "broad-based weighted average" written explicitly.</p>`,prevDraft:`8.3 Anti-Dilution Adjustment. In the event of a Down Round, the Conversion Price shall be adjusted using the broad-based weighted average formula:\n\nCP2 = CP1 × (A + B) / (A + C)\n\nWhere:\nCP1 = Conversion Price prior to Down Round\nCP2 = Adjusted Conversion Price\nA = Shares outstanding (fully diluted, including ESOP pool) prior to Down Round\nB = Aggregate consideration received ÷ CP1\nC = Number of Shares issued in Down Round`,prevDraftNote:`The denominator "A" must include the ESOP pool. Some investors draft this with "A" as common + preferred only — this is the narrow-based version. Insist on full broad-based definition explicitly.`,prevLegal:[{type:"india",lbl:"India legal flag",txt:"Term sheets often say \"weighted average anti-dilution\" without specifying broad or narrow-based. Demand explicit broad-based language before signing. Ambiguity at term sheet stage = investor advantage at SHA drafting."},{type:"draft",lbl:"Drafting note",txt:"Anti-dilution adjustments must be reflected in the AOA. Ensure the conversion ratio formula in the SHA is mirrored in the AOA."},{type:"fema",lbl:"FEMA — NDI Rules 2019",txt:"Anti-dilution share issuances to foreign investors must comply with FEMA pricing guidelines. Issuances below fair market value to foreign investors require prior RBI approval."}],summary:"Broad-based weighted average is market standard for Series A in India. Full ratchet is non-standard and must be rejected. Term sheets often say \"weighted average\" without specifying broad or narrow — always demand explicit broad-based language.",riskFlags:[{type:"warn",icon:"ti-alert-triangle",text:"<strong>Narrow-based weighted average:</strong> Uses a smaller denominator. Produces a materially larger adjustment. Demand explicit broad-based language."},{type:"crit",icon:"ti-ban",text:"<strong>Full ratchet:</strong> Any future issuance at a lower price reprices the investor's entire holding. Ownership can jump from 28.6% to 50%+. Absolute rejection."}],founder:"Push for broad-based weighted average. Ensure ESOP pool is included in the denominator. Full ratchet is non-negotiable rejection.",investor:"Prefer narrow-based weighted average. Push back on including ESOP pool.",tactics:[{t:"Specify \"broad-based\" explicitly.",b:"Never allow \"weighted average\" to stand unqualified."},{t:"Define the denominator exhaustively.",b:"List every component: common + preferred + ESOP pool + convertibles + warrants."},{t:"Carve out ESOP issuances.",b:"Anti-dilution should not trigger on ESOP issuances or convertible conversions at pre-agreed prices."}],market:{stats:[{v:"Broad-based WA",l:"Series A market standard India"},{v:"ESOP pool",l:"Must be in denominator"},{v:"Full ratchet",l:"Not used in legitimate deals"}],text:"Broad-based weighted average is market standard in India. Term sheets frequently omit \"broad-based\" — always add it.",tiers:["Lead Investor","Majority Investors"],lead:true},alternatives:[{name:"Broad-based weighted average",badge:"tag-l",label:"Preferred",open:true,body:"Denominator includes all fully diluted shares: common + preferred + ESOP pool + convertibles + warrants. Market standard."},{name:"Narrow-based weighted average",badge:"tag-h",label:"Resist",body:"Denominator is common shares only. Smaller denominator = larger adjustment. Investor-favourable."},{name:"Full ratchet",badge:"tag-c",label:"Reject",body:"Any future issuance at lower price reprices entire investor holding. Absolute rejection."}],legal:[{type:"india",lbl:"India legal flag",txt:"Term sheets often say \"weighted average anti-dilution\" without specifying broad or narrow-based. Demand explicit broad-based language before signing."},{type:"draft",lbl:"Drafting note",txt:"Anti-dilution adjustments must be reflected in the AOA. A mismatch between SHA and AOA provisions can create enforcement issues."},{type:"fema",lbl:"FEMA — NDI Rules 2019",txt:"Anti-dilution share issuances to foreign investors must comply with FEMA pricing guidelines. Issuances below fair market value require prior RBI approval."}]},br:{name:"Board Representation",riskType:"rp-m",riskLabel:"Medium risk",ref:"Companies Act 2013 §152 · §161",chunks:[{title:"Observer rights — Seed standard",tags:["low risk","market std"]},{title:"1 board seat — Series A standard",tags:["medium","market std"]}],meaning:`<p>A company's board of directors is its highest governing body — the group that takes major decisions on strategy, hiring senior management, approving large expenditures, and overseeing the company's direction. When investors put money into a startup, they typically want a seat at this table, or at least a window into it.</p><p><em>Observer rights</em> allow an investor to attend board meetings and receive board materials, but without the right to vote. This is common at the Seed stage. An <em>investor director seat</em> gives the investor full voting rights on the board — standard for a lead investor at Series A.</p><p>The critical risk is when an investor demands <strong>both</strong> a board seat and broad veto rights (Affirmative Voting Matters). That combination gives the investor control at two levels simultaneously. A well-structured deal gives the investor one or the other, not both. The board seat should also include a fall-away clause — it should lapse if the investor's shareholding drops below an agreed threshold, preventing a heavily diluted investor from retaining board control indefinitely.</p>`,prevDraft:`5.1 Board Composition. The Board of Directors shall comprise [●] Directors, of which:\n(a) [2] Directors shall be nominated by the Founders;\n(b) [1] Director shall be nominated by the Lead Investor (the "Investor Director"), provided that the Lead Investor's shareholding is not less than [5]% of the total paid-up share capital on a fully diluted basis (the "Fall-Away Threshold");\n(c) [1] Independent Director to be mutually agreed.\n\n5.2 Fall-Away. Upon the Lead Investor's shareholding falling below the Fall-Away Threshold, the right to nominate the Investor Director shall automatically lapse.`,prevDraftNote:`The fall-away clause in §5.2 is critical. Without it, a heavily diluted investor retains board control indefinitely. Always negotiate the Fall-Away Threshold explicitly.`,prevLegal:[{type:"india",lbl:"Companies Act 2013 §152 / §161",txt:"A director nominated by a shareholder must be appointed under §152 or §161 as per the AOA. A contractual right in the SHA alone may not be enforceable if the AOA does not explicitly provide for investor-nominated directors. Mirror SHA director rights in the AOA."},{type:"draft",lbl:"Fall-away drafting note",txt:"Fall-away thresholds for board rights are typically documented in the SHA. Typical threshold: 5–10% of total share capital."},{type:"fema",lbl:"FEMA note",txt:"In FDI-sensitive sectors, board control by a foreign investor may trigger downstream compliance requirements. Verify sector-specific FDI policy before agreeing to investor director terms."}],summary:"At Seed, observer rights for the lead investor is market standard. At Series A, one board seat for the lead investor is market standard. The danger zone is a board seat combined with broad Affirmative Voting Matters.",riskFlags:[{type:"warn",icon:"ti-alert-triangle",text:"<strong>Board seat + broad AVM:</strong> Accept one or the other — not both."},{type:"crit",icon:"ti-ban",text:"<strong>Multiple board seats:</strong> 2+ investor seats at Series A is aggressive. Signals a distressed deal dynamic."}],founder:"Accept 1 seat for lead investor only. Personal to the lead entity — not transferable. If investor has a board seat, AVM list should be narrow. Impose fall-away.",investor:"Push for board seat plus broad AVM rights. May seek observer rights for majority investors.",tactics:[{t:"Treat board seat and AVM as alternatives.",b:"Board seat + operational AVM is excessive."},{t:"Make board seat personal.",b:"Board seat should not be transferable to a secondary buyer."},{t:"Fall-away at shareholding threshold.",b:"Board rights should lapse if investor drops below an agreed threshold."}],market:{stats:[{v:"Observer",l:"Lead investor right at Seed"},{v:"1 seat",l:"Lead investor right at Series A"},{v:"Non-std",l:"2+ investor seats at Series A"}],text:"At Series A: 1 board seat for lead investor is market standard.",tiers:["Lead Investor → board seat","Majority Investor → observer (with fall-away)","Other Investors → information rights only"],lead:true},alternatives:[{name:"1 board seat — lead investor only",badge:"tag-l",label:"Preferred",open:true,body:"One director seat for the lead investor. Personal to the lead entity. Narrow AVM only. Fall-away if shareholding drops below threshold."},{name:"Observer rights — majority investors",badge:"tag-m",label:"Acceptable",body:"Non-voting observer seat. Receives board materials. No voting rights."},{name:"Multiple seats or board control",badge:"tag-c",label:"Reject",body:"2+ investor seats at Series A. Non-standard."}],legal:[{type:"india",lbl:"Companies Act 2013 §152 / §161",txt:"A director nominated by a shareholder must be appointed under §152 or §161 as per the AOA. A contractual right in the SHA alone may not be enforceable if the AOA does not explicitly provide for investor-nominated directors."},{type:"draft",lbl:"Fall-away drafting note",txt:"Fall-away thresholds for board rights are typically documented in the SHA. Typical threshold: 5–10% of total share capital."},{type:"fema",lbl:"FEMA note",txt:"In FDI-sensitive sectors, board control by a foreign investor may trigger downstream compliance requirements."}]},pp:{name:"Affirmative Voting (AVM)",riskType:"rp-h",riskLabel:"High impact",ref:"Companies Act 2013 §114",chunks:[{title:"Standard AVM — structural decisions only",tags:["medium","market std"]},{title:"Broad AVM — operational decisions",tags:["critical","non-standard"]}],meaning:`<p>Affirmative Voting Matters — also called protective provisions or investor veto rights — are a list of specific company decisions that <strong>cannot be taken without the investor's prior written consent</strong>, regardless of what the founders or the board want.</p><p>In a well-drafted deal, this list covers only major structural events: selling the company, winding it down, issuing new shares, taking on significant debt, or changing the core business. These are decisions that could fundamentally affect the investor's return, so requiring their sign-off is reasonable.</p><p>Where this clause becomes problematic is when investors try to expand the list to include <em>operational</em> decisions — hiring senior employees, approving the annual budget, or signing vendor contracts above a small threshold. A company that needs investor approval to hire a CFO or sign a ₹1 crore vendor contract cannot operate at the speed that startups require. Always negotiate a matching exclusion list alongside the AVM list, and insist that AVM rights lapse (fall away) if the investor's shareholding drops below an agreed threshold.</p>`,prevDraft:`Schedule 4 — Affirmative Voting Matters\n\nThe following decisions shall require prior written consent of the Lead Investor:\n(a) Any merger, amalgamation or acquisition;\n(b) Any liquidation, dissolution or winding-up;\n(c) Incurring any indebtedness in excess of INR [5,00,00,000];\n(d) Any issuance of new shares or grant of options;\n(e) Any change in the principal business of the Company;\n(f) Any amendment to the Memorandum or Articles of Association.\n\nFor the avoidance of doubt, the Affirmative Voting Rights shall not apply to day-to-day operational decisions including hiring below the level of [CXO], routine vendor contracts below [INR 50 lakhs], or expenditures within the approved annual budget.`,prevDraftNote:`The exclusion list in the final paragraph is as important as the AVM list itself. Without it, investors can argue that any significant decision requires their consent.`,prevLegal:[{type:"india",lbl:"Companies Act 2013 §114",txt:"Certain decisions require special resolutions (75% shareholder vote) by statute — M&A, name change, MOA/AOA alteration. Contractual AVM rights must be read alongside these statutory thresholds. A contractual veto below the statutory approval threshold may create enforcement conflicts."},{type:"draft",lbl:"Fall-away drafting note",txt:"Fall-away thresholds are typically documented in the SHA AVM schedule. When investor drops below threshold, they are reclassified from Majority Investor to Other Investor and lose AVM rights."},{type:"fema",lbl:"FEMA note",txt:"Broad AVM granting control over operational decisions may constitute \"control\" under FEMA in FDI-sensitive sectors."}],summary:"Narrow AVM tied to structural decisions — M&A, liquidation, cap table, new debt above ₹5Cr — is market standard. Broad AVM including operational decisions paralyses operations and is non-standard.",riskFlags:[{type:"crit",icon:"ti-ban",text:"<strong>Broad AVM including operational decisions:</strong> A company that needs investor approval to hire a mid-level engineer cannot function. Reject entirely."},{type:"warn",icon:"ti-alert-triangle",text:"<strong>No fall-away threshold:</strong> Always insist on fall-away — typically 5–10% of total share capital."}],founder:"Keep AVM list narrow: M&A, liquidation, cap table changes, debt above ₹5Cr, change in principal business. Resist any operational matters.",investor:"Push for broader list including KMP hiring/firing, annual budget approval, related-party transactions.",tactics:[{t:"List what is excluded, not just included.",b:"A well-drafted AVM schedule lists both covered matters and an explicit exclusion list."},{t:"Link AVM scope to board seat.",b:"Board seat + narrow AVM is balanced. Board seat + broad AVM is aggressive."},{t:"Insist on fall-away in SHA even if term sheet is silent.",b:"A heavily diluted investor retaining veto rights is a significant governance risk."}],market:{stats:[{v:"Narrow AVM",l:"Market standard — structural only"},{v:"5–10%",l:"Typical fall-away threshold"},{v:"Broad AVM",l:"Non-standard — signals control intent"}],text:"Narrow AVM tied to structural decisions is market standard. Broad AVM is aggressive.",tiers:["Lead Investor (AVM rights)","Majority Investors (with fall-away)","Other Investors — no AVM rights"],lead:true},alternatives:[{name:"Narrow AVM — structural only",badge:"tag-l",label:"Preferred",open:true,body:"M&A, liquidation, new debt above ₹5Cr, cap table changes, change in principal business. With fall-away."},{name:"Narrow AVM with explicit fall-away",badge:"tag-l",label:"Preferred",body:"Same narrow AVM plus explicit fall-away: rights lapse if investor drops below 5–10% of total share capital."},{name:"Broad AVM including operational decisions",badge:"tag-c",label:"Reject",body:"Requires investor consent for KMP hiring, annual budget, vendor contracts. Paralyses operations. Reject."}],legal:[{type:"india",lbl:"Companies Act 2013 §114",txt:"Certain decisions require special resolutions (75% shareholder vote) by statute. Contractual AVM rights must be read alongside these statutory thresholds."},{type:"draft",lbl:"Fall-away drafting note",txt:"When investor drops below threshold, they are reclassified from Majority Investor to Other Investor and lose AVM rights."},{type:"fema",lbl:"FEMA note",txt:"Broad AVM granting control over operational decisions may constitute \"control\" under FEMA in FDI-sensitive sectors."}]},pr:{name:"Pre-emptive Rights",riskType:"rp-m",riskLabel:"Medium risk",ref:"Companies Act 2013 §62",chunks:[{title:"Pre-emptive rights — maintain ownership %",tags:["low risk","market std"]},{title:"Mop-up rights — use with caution",tags:["medium","less common"]}],meaning:`<p>Every time a startup raises a new round of funding, it issues new shares. This naturally reduces — or <em>dilutes</em> — the percentage ownership of everyone who already holds shares. A pre-emptive right, also called a pro-rata right, gives an existing investor the opportunity to <strong>participate in that new round</strong> by buying enough new shares to maintain their current ownership percentage.</p><p>For example, if an investor owns 15% of the company and the company raises a new round, the investor has the right to invest in that new round up to the amount needed to remain at 15% after it closes. They are not obligated to exercise this right — but they have the option.</p><p>A related concept is the <em>mop-up right</em>: if other investors choose not to exercise their pre-emptive rights, the mop-up right allows one investor to absorb those unexercised allocations. This can allow an investor to incrementally increase their ownership over time — potentially crossing important legal thresholds such as 25%+1, which gives the ability to block special resolutions under the Companies Act.</p>`,prevDraft:`9.1 Pre-emptive Rights. Each Lead Investor and Majority Investor shall have the right to subscribe for, at the same price and on the same terms as offered to third parties, up to its Pro Rata Share of any New Securities proposed to be issued by the Company.\n\n9.2 Carve-outs. The Pre-emptive Rights shall not apply to:\n(a) issuances pursuant to ESOP;\n(b) issuances to employees, directors or consultants approved by the Board;\n(c) conversions of outstanding convertible instruments.\n\n9.3 Fall-Away. The Pre-emptive Rights shall lapse if the Investor's shareholding falls below [5]% of the total paid-up share capital on a fully diluted basis.`,prevDraftNote:`The §9.2 carve-outs are critical. Without them, every ESOP grant triggers a pre-emptive rights notice to all investors — creating an administrative burden from Series A onwards.`,prevLegal:[{type:"india",lbl:"Companies Act 2013 §62",txt:"§62 provides existing shareholders a statutory right of first refusal on new share issuances to maintain their proportionate holding. Contractual pre-emptive rights in the SHA supplement but cannot override §62."},{type:"draft",lbl:"Mop-up rights drafting note",txt:"Mop-up rights must be clearly distinguished from pre-emptive rights in the SHA. They should include an explicit cap referencing statutory thresholds (25%+1, 51%) to prevent unintended control transfers."},{type:"fema",lbl:"FEMA note",txt:"Mop-up rights combined with pre-emptive rights can allow a foreign investor to cross material statutory thresholds, triggering downstream FEMA compliance."}],summary:"Pre-emptive rights allow investors to participate in future equity issuances to maintain their ownership percentage. Market standard for lead and majority investors. Mop-up rights — subscribing to unsubscribed portions — are less common and must be capped.",riskFlags:[{type:"warn",icon:"ti-alert-triangle",text:"<strong>Mop-up rights:</strong> Combined with pre-emptive rights, can allow an investor to cross material shareholding thresholds (25%+1, 51%) without the company's awareness. Must be strictly capped."}],founder:"Accept pre-emptive rights for lead and majority investors only. Not applicable to ESOP grants, regulatory issuances, or convertible conversions. Strictly resist uncapped mop-up rights.",investor:"Push for pre-emptive rights for all investors, all rounds, with no carve-outs.",tactics:[{t:"Carve out ESOP grants explicitly.",b:"Pre-emptive rights should not apply to ESOP pool issuances or convertible conversions at pre-agreed prices."},{t:"Cap mop-up rights at the 25%+1 threshold.",b:"Include an explicit cap preventing the investor from crossing the 25%+1 statutory threshold."},{t:"Flag for renegotiation at Series B.",b:"Include a provision that the right will be renegotiated at each subsequent funding round."}],market:{stats:[{v:"Market std",l:"Pre-emptive for lead + majority investors"},{v:"Less common",l:"Mop-up rights — flag when both present"},{v:"25%+1",l:"Statutory threshold — must not be crossed via mop-up"}],text:"Pre-emptive rights for lead and majority investors are market standard. Mop-up rights, when included, should be clearly distinguished and capped.",tiers:["Lead Investor (pre-emptive + mop-up)","Majority Investors (pre-emptive only)","Other Investors — no pre-emptive rights"],lead:true},alternatives:[{name:"Pre-emptive rights — lead + majority only",badge:"tag-l",label:"Preferred",open:true,body:"Right to maintain ownership % in future equity issuances. Excludes ESOP issuances. Subject to fall-away."},{name:"Pre-emptive rights with mop-up — capped",badge:"tag-h",label:"Acceptable with cap",body:"Mop-up right capped to prevent crossing the 25%+1 or 51% statutory thresholds."},{name:"Pre-emptive for all investors, no carve-outs",badge:"tag-c",label:"Resist",body:"Creates administrative burden at every future issuance."}],legal:[{type:"india",lbl:"Companies Act 2013 §62",txt:"§62 provides existing shareholders a statutory right of first refusal on new share issuances. Contractual pre-emptive rights in the SHA supplement but cannot override §62."},{type:"draft",lbl:"Mop-up rights drafting note",txt:"Mop-up rights must be clearly distinguished from pre-emptive rights in the SHA. They should include an explicit cap referencing statutory thresholds (25%+1, 51%) to prevent unintended control transfers."},{type:"fema",lbl:"FEMA note",txt:"Mop-up rights combined with pre-emptive rights can allow a foreign investor to cross material statutory thresholds, triggering downstream FEMA compliance."}]},da:{name:"Drag-Along Rights",riskType:"rp-l",riskLabel:"Low risk",ref:"Companies Act 2013 · FEMA NDI Rules 2019",chunks:[{title:"Drag-along at 75% — market standard",tags:["low risk","market std"]},{title:"Drag-along at 51% — non-standard, reject",tags:["high","non-standard"]}],meaning:`<p>Imagine an investor has found a buyer for the entire company at a good price, but one or two minority shareholders refuse to sell their shares, blocking the deal. A drag-along right solves this problem: it allows a <strong>defined majority of shareholders to force the remaining shareholders to sell</strong> their shares to the same buyer, on the same terms.</p><p>The key protection for founders is the threshold. If drag-along can be triggered by a simple majority — say 51% of shares — then an investor who holds 35% could team up with a few other early investors to reach 51% and force a sale that founders don't want, at a price they consider too low. This is why founders should insist the threshold is set at <em>75% on a fully diluted basis</em>, meaning all classes of shares are counted, not just preferred shares.</p><p>Two other important protections are a <em>floor valuation</em> (drag-along cannot be exercised at a price below a minimum, protecting founders from distressed sales) and a <em>founder director concurrence requirement</em> (at least one founder-nominated director must agree before drag-along can be exercised).</p>`,prevDraft:`11.1 Drag-Along. If Shareholders holding not less than [75%] of the total paid-up share capital on a fully diluted basis (the "Drag Threshold") propose to Transfer their Shares to a bona fide third party purchaser, such Shareholders may require all other Shareholders to Transfer their Shares to such purchaser on the same terms.\n\n11.2 Conditions. The Drag-Along right shall not be exercised:\n(a) at a price per Share below [1x] the last round valuation per Share;\n(b) without [90] days prior written notice;\n(c) unless at least one Founder Director has provided written concurrence.`,prevDraftNote:`The conditions in §11.2 are the critical founder protections. Without a floor valuation, investors can force a distressed sale at any price. Without founder director concurrence, founders have no check on the process.`,prevLegal:[{type:"india",lbl:"Companies Act 2013",txt:"Drag-along rights are contractual — not statutory under Indian company law. Transfers under drag-along must comply with AOA transfer restrictions, applicable stamp duty, and FEMA conditions. Define trigger events exhaustively — vague drag-along triggers have been litigated in India."},{type:"draft",lbl:"Drafting note",txt:"Specify the notice period (30–60 days), pricing mechanism, and good faith effort standard explicitly. Indian courts have upheld contractually agreed drag-along waterfalls when clearly defined."},{type:"fema",lbl:"FEMA note",txt:"If a foreign investor exercises drag-along rights to force a share transfer, the transfer must comply with FEMA (Non-Debt Instruments) Rules 2019 pricing guidelines."}],summary:"75% on a fully diluted basis is market standard in India. 51% is aggressive. 66% is a compromise. The calculation basis — fully diluted vs preferred shares only — is often the key battleground.",riskFlags:[{type:"warn",icon:"ti-alert-triangle",text:"<strong>51% drag-along:</strong> At Series A with 30–35% investor ownership, reaching 51% is realistic. Founders can be forced into an exit."},{type:"warn",icon:"ti-alert-triangle",text:"<strong>Preferred-only denominator:</strong> Calculating threshold on preferred shares only effectively lowers the real threshold."}],founder:"Accept 75% threshold on all share classes, fully diluted basis. Add a floor valuation and require at least one founder-nominated director's concurrence.",investor:"Push for lower threshold (51–66%). May push for threshold calculated on preferred shares only.",tactics:[{t:"Insist on fully diluted basis.",b:"Preferred-only calculation is an attempt to lower the real threshold."},{t:"Add a floor valuation.",b:"Drag-along cannot be exercised at a price below a defined floor — e.g., 1x the last round valuation."},{t:"Require founder director concurrence.",b:"For drag-along to be exercisable, require at least one founder-nominated director to agree."}],market:{stats:[{v:"75%",l:"Market standard — fully diluted basis"},{v:"66%",l:"Compromise position"},{v:"51%",l:"Non-standard — reject"}],text:"75% on fully diluted basis is market standard in India.",tiers:["Lead Investor + Majority Investors (jointly crossing threshold)"],lead:false},alternatives:[{name:"75% drag-along — fully diluted",badge:"tag-l",label:"Preferred",open:true,body:"75%+ of all shareholders on fully diluted basis must vote to sell. Add floor valuation and good faith exit process requirement."},{name:"66% drag-along — fully diluted",badge:"tag-h",label:"Compromise",body:"66% on fully diluted basis. Acceptable compromise."},{name:"51% or preferred-only basis",badge:"tag-c",label:"Reject",body:"Allows investor to force exit without broad consensus. Non-standard in India."}],legal:[{type:"india",lbl:"Companies Act 2013",txt:"Drag-along rights are contractual — not statutory under Indian company law. Transfers must comply with AOA transfer restrictions, applicable stamp duty, and FEMA conditions."},{type:"draft",lbl:"Drafting note",txt:"Specify the notice period, pricing mechanism, and good faith effort standard explicitly. Indian courts have upheld contractually agreed drag-along waterfalls when clearly defined."},{type:"fema",lbl:"FEMA note",txt:"If a foreign investor exercises drag-along rights to force a share transfer, the transfer must comply with FEMA (Non-Debt Instruments) Rules 2019 pricing guidelines."}]},ex:{name:"Exit Rights — Put / Call",riskType:"rp-h",riskLabel:"High impact",ref:"SCRA 1956 · FEMA NDI Rules 2019 · SEBI 3 Oct 2013",chunks:[{title:"Put option — investor right to force buyback",tags:["high","India-specific"]},{title:"Exit waterfall — IPO → M&A → buyback",tags:["medium","market std"]}],meaning:`<p>When a venture investor puts money into a startup, they're betting on a successful exit — either through an IPO or by the company being acquired. But what happens if neither occurs within a reasonable timeframe? Exit rights clauses address this: they give the investor a path to recover their money even if the company hasn't achieved the hoped-for liquidity event.</p><p>A <em>put option</em> gives the investor the right (but not the obligation) to require the company — or in some cases, the founders personally — to buy back their shares at a pre-agreed price. It's triggered by specific events: failure to achieve an IPO by a certain date, a breach of the SHA, or simply the passage of time (the "longstop date," typically 5–7 years in India).</p><p>The critical India-specific legal issue is <strong>pricing</strong>. A put option that guarantees the investor a fixed return — such as "original investment plus 18% per annum" — risks being challenged as an illegal forward contract under the Securities Contracts (Regulation) Act 1956. Indian courts have been clear: put options must be priced at fair value determined by an independent valuer, not at a guaranteed assured return. This was confirmed in Banyan Tree Growth Capital LLC v. Axion Cordages Ltd (Bombay High Court).</p>`,prevDraft:`13.1 Put Option. If the Company has not completed a Qualified IPO or an M&A Exit on or before [6] years from the Closing Date (the "Longstop Date"), the Investor shall have the right to require the Company to purchase all of the Investor's Preference Shares at a price equal to the Fair Value per Share, as determined by an independent valuer mutually agreed between the parties.\n\n13.2 Conditions. The Put Option may only be exercised:\n(a) after [90] days prior written notice;\n(b) if the Company has sufficient distributable profits or free reserves under Companies Act 2013;\n(c) at a price not less than the Original Issue Price.`,prevDraftNote:`"Fair Value per Share" must be determined by an independent valuer — not as a fixed return formula. The §13.2 conditions protect founders from a put being exercised in unfavourable circumstances.`,prevLegal:[{type:"india",lbl:"SCRA 1956 · SEBI notification 3 Oct 2013",txt:"Banyan Tree Growth Capital LLC v. Axion Cordages Ltd (Bombay HC): Put options are valid under Indian law when structured as fair value buyback arrangements. Fixed-return puts risk challenge as illegal forward contracts under SCRA 1956. SEBI notification 3 Oct 2013 gave statutory recognition to shareholder put/call option contracts for unlisted companies."},{type:"draft",lbl:"Exit waterfall drafting note",txt:"Indian courts uphold contractually agreed waterfalls when clearly defined. Each mechanism must have a specific trigger and timeline. Define \"good faith effort\" standard for IPO and M&A attempts before the put is triggered."},{type:"fema",lbl:"FEMA — NDI Rules 2019",txt:"Put options exercised by foreign investors must comply with FEMA pricing guidelines. Fixed-return puts for foreign investors are structurally incompatible with FEMA pricing rules."}],summary:"Put options give investors the right to require the company or founders to buy back their shares. Standard in India with 5–7 year longstop dates. Critical legal issue: fixed-return puts risk challenge as illegal forward contracts under SCRA 1956.",riskFlags:[{type:"crit",icon:"ti-ban",text:"<strong>Fixed IRR put pricing:</strong> Risk being challenged as illegal forward contracts under SCRA 1956. Use fair value / independent valuer pricing only."},{type:"warn",icon:"ti-alert-triangle",text:"<strong>Put against founders personally:</strong> Creates unlimited personal liability. Insist put is against company only — and only if company has distributable profits."}],founder:"If accepting a put option: (1) Fair value pricing via independent valuer. (2) Put against company only if company has distributable profits. (3) Exhaustive trigger definitions. (4) 90+ day notice period. (5) 6–7 year minimum longstop.",investor:"Push for put with fixed IRR pricing or floor valuation. Prefer put exercisable against founders personally.",tactics:[{t:"Fair value, not fixed return.",b:"Fixed-return puts risk SCRA challenge. Reference \"fair value as determined by an independent valuer\"."},{t:"Company only, not personal.",b:"A personal put against founders is unlimited personal liability."},{t:"Define every trigger.",b:"Vague triggers like \"material adverse change\" without exhaustive definitions create disputes."}],market:{stats:[{v:"5–7 yrs",l:"Typical longstop date"},{v:"Fair value",l:"Market standard pricing"},{v:"IPO→M&A→Put",l:"Standard exit waterfall"}],text:"Put options are common in Indian PE/VC deals. Fair value pricing via independent valuer is increasingly market standard.",tiers:["Lead Investor (put + call)","Majority Investors (put only)","Other Investors — tag-along only"],lead:true},alternatives:[{name:"Fair value put — company only",badge:"tag-l",label:"Preferred",open:true,body:"Put at fair value via independent valuer. Against company only. Triggered by longstop (6–7 years). 90+ day notice. Company must have distributable profits."},{name:"Floor valuation put — company only",badge:"tag-h",label:"Compromise",body:"Put at higher of fair value or 1x invested capital. Legally safer than fixed-IRR structure."},{name:"Fixed IRR put / personal put against founders",badge:"tag-c",label:"Reject",body:"Fixed return puts risk SCRA challenge. Personal puts create unlimited personal liability."}],legal:[{type:"india",lbl:"SCRA 1956 · SEBI notification 3 Oct 2013",txt:"Banyan Tree Growth Capital LLC v. Axion Cordages Ltd (Bombay HC): Put options are valid under Indian law when structured as fair value buyback arrangements. Fixed-return puts risk challenge as illegal forward contracts under SCRA 1956."},{type:"draft",lbl:"Exit waterfall drafting note",txt:"Indian courts uphold contractually agreed waterfalls when clearly defined. Each mechanism must have a specific trigger and timeline."},{type:"fema",lbl:"FEMA — NDI Rules 2019",txt:"Put options exercised by foreign investors must comply with FEMA pricing guidelines. Fixed-return puts for foreign investors are structurally incompatible with FEMA pricing rules."}]},ir:{name:"Information Rights",riskType:"rp-l",riskLabel:"Low risk",ref:"Companies Act 2013 §129 · §134",chunks:[{title:"Quarterly reporting — market standard",tags:["low risk","market std"]},{title:"Audit rights — limit frequency and notice",tags:["medium","negotiable"]}],meaning:`<p>Once an investor has put money into a company, they need a way to monitor how that investment is performing. Information rights are the contractual mechanism that entitles investors to receive regular financial and operational updates from the company, even though they are not involved in day-to-day management.</p><p>At the most basic level, this means receiving <em>quarterly financial statements</em> — profit and loss, balance sheet, and cash flow — within a set timeframe after each quarter ends. Lead and majority investors typically also receive board meeting materials, which include management updates, key metrics, and board resolutions.</p><p>Information rights can also include <em>audit rights</em> — the right to appoint an independent auditor to inspect the company's books. This is where things can become disruptive. An investor with unlimited audit rights could conduct surprise audits or demand access to sensitive operational data. A well-structured clause caps audit frequency at once per year and requires 30 days advance notice. Information rights should be tiered by investor class and subject to a fall-away threshold.</p>`,prevDraft:`12.1 Information Rights. The Company shall provide to each Lead Investor and Majority Investor:\n(a) Unaudited quarterly financial statements (P&L, balance sheet, cash flow) within [30] days of each quarter end;\n(b) Annual audited financial statements within [90] days of each financial year end;\n(c) Board meeting materials at least [5] Business Days prior to each Board meeting.\n\n12.2 Other Investors. Each Other Investor shall receive unaudited quarterly financial statements within [30] days of each quarter end.\n\n12.3 Audit Rights. Each Lead Investor shall have the right to appoint an independent auditor, at its own cost, to audit the books of the Company not more than once per financial year, with not less than [30] days prior written notice.`,prevDraftNote:`The cap in §12.3 on audit frequency is critical. Without it, an investor can conduct rolling audits that consume significant management bandwidth. The 30-day notice requirement protects against surprise audits.`,prevLegal:[{type:"india",lbl:"Companies Act 2013 §129 / §134",txt:"Annual audited financial statements are mandatory under §129/§134. Quarterly reporting is a contractual SHA obligation — not statutory for unlisted companies. Ensure SHA information rights are consistent with the company's financial reporting calendar."},{type:"draft",lbl:"Fall-away drafting note",txt:"Information rights are subject to fall-away threshold. When investor drops below the agreed shareholding, they move from Majority Investor to Other Investor tier and receive reduced information rights only. Document the fall-away mechanism explicitly in the SHA."}],summary:"Quarterly financial reporting is market standard. Information rights should be tiered by investor class. Audit rights should be capped at once per year with 30 days notice.",riskFlags:[{type:"warn",icon:"ti-alert-triangle",text:"<strong>Unlimited audit rights:</strong> Investor audit rights with no frequency limit create operational disruption. Limit to once per year with 30 days prior written notice."}],founder:"Accept quarterly reporting. Limit audit rights to once per year, 30 days prior notice. Tier information rights: lead/majority investors get board materials + financials; other investors get financials only.",investor:"Push for monthly management accounts plus quarterly financials plus unlimited audit rights.",tactics:[{t:"Tier information rights by investor class.",b:"Lead and majority investors: board materials + quarterly financials. Other investors: quarterly financials only."},{t:"Cap audit rights explicitly.",b:"Maximum one audit per year, 30 days written notice, specific scope defined."}],market:{stats:[{v:"Quarterly",l:"Market standard reporting"},{v:"Monthly",l:"Acceptable for lead investors only"},{v:"Once/year",l:"Audit rights max with 30d notice"}],text:"Quarterly reporting is market standard. Tiered information rights by investor class is increasingly common.",tiers:["Lead/Majority: quarterly financials + board materials","Other Investors: quarterly financials only"],lead:false},alternatives:[{name:"Tiered quarterly reporting",badge:"tag-l",label:"Preferred",open:true,body:"Lead and majority investors: quarterly P&L, balance sheet, cash flow, board materials. Other investors: quarterly financials only. Audit: once per year, 30 days notice."},{name:"Monthly reporting — lead investor only",badge:"tag-m",label:"Acceptable",body:"Monthly management accounts for lead investor only, quarterly for all others."}],legal:[{type:"india",lbl:"Companies Act 2013 §129 / §134",txt:"Annual audited financial statements are mandatory under §129/§134. Quarterly reporting is a contractual SHA obligation — not statutory for unlisted companies."},{type:"draft",lbl:"Fall-away drafting note",txt:"Information rights are subject to fall-away threshold. When investor drops below the agreed shareholding, they receive reduced information rights only."}]},rr:{name:"Redemption Rights",riskType:"rp-c",riskLabel:"Critical risk",ref:"Companies Act 2013 §55 · FEMA NDI Rules 2019",chunks:[{title:"Redemption rights — dangerous, non-standard",tags:["critical","reject"]}],meaning:`<p>Redemption rights allow an investor to demand that the company buy back their shares after a certain period of time, at a price that is typically equal to the original investment plus an agreed return — for example, 18% per annum. On the surface, this might seem like a reasonable exit mechanism. In practice, it converts what is supposed to be an equity investment into something that looks and behaves very much like a loan.</p><p>Here's the problem: a company is not legally obligated to repay equity investors the way it must repay lenders. When a company grants redemption rights, it is effectively promising that it — or in some structures, the founders personally — will come up with the cash to buy back those shares at the agreed price, regardless of how the business is performing. If the company cannot pay, the redemption right becomes a trigger for a legal dispute, potential winding-up, or personal financial liability for the founders.</p><p>In India, this structure also creates serious regulatory complications. An equity instrument with a guaranteed redemption at a fixed return may be reclassified as debt under Indian accounting standards and under FEMA — which means that if the investor is a foreign entity, the investment may need to comply with External Commercial Borrowings (ECB) regulations, which carry their own reporting requirements, interest rate caps, and end-use restrictions. For these reasons, redemption rights are non-standard in Indian VC deals and should be rejected. The alternative — a well-structured put option at fair value — achieves the same economic goal for the investor without the legal and regulatory risks.</p>`,prevDraft:`[This clause should not appear in any term sheet for an unlisted Indian VC deal]\n\nA typical redemption clause (shown for identification — should be rejected):\n\n"The Investor shall have the right to require the Company to redeem all of the Preference Shares held by the Investor at a price equal to the Original Issue Price plus [18%] per annum compounded annually, at any time after [3] years from Closing."\n\nThis structure is legally problematic under SCRA 1956 and FEMA NDI Rules 2019. Counter with a fair value put option instead.`,prevDraftNote:`Do not use this clause. The example above is shown for identification purposes only — to recognise and reject it if seen in a term sheet.`,prevLegal:[{type:"india",lbl:"Companies Act 2013 §55",txt:"Redeemable preference shares are permitted under §55 only if the company has distributable profits or a fresh share issue at the time of redemption. A mandatory redemption obligation the company cannot fulfill creates a legal impasse — potentially triggering winding-up proceedings."},{type:"fema",lbl:"FEMA — critical risk",txt:"Redemption rights may cause the instrument to be reclassified as debt under FEMA. If a preferred share has a redemption right, it may be treated as debt for FEMA purposes, requiring compliance with ECB regulations if the investor is foreign. This is a material compliance risk."}],summary:"Redemption rights allow investors to demand the company buy back their shares at original price or a premium after a set period. Essentially a debt-like instrument dressed as equity. Non-standard in Indian VC deals. Its presence in a term sheet is a red flag.",riskFlags:[{type:"crit",icon:"ti-ban",text:"<strong>Redemption rights:</strong> Reject entirely. Converts equity into quasi-debt. May trigger ECB compliance for foreign investors."}],founder:"Reject entirely. Counter with well-structured put option at fair value instead.",investor:"Rarely seen in legitimate VC deals. More common in NBFC or structured finance contexts.",tactics:[{t:"Reject and counter with fair value put.",b:"Offer a put option at fair value via independent valuer — achieves the economic goal without FEMA/GAAP reclassification risk."},{t:"Flag the FEMA risk explicitly.",b:"An instrument with redemption rights may be reclassified as debt under FEMA — triggering ECB compliance."}],market:{stats:[{v:"Non-standard",l:"Not used in legitimate VC deals"},{v:"Red flag",l:"Signals doubt in equity upside"},{v:"ECB risk",l:"FEMA reclassification risk"}],text:"Redemption rights are non-standard in Indian VC deals. Their presence is a red flag.",tiers:["N/A — should not be granted to any tier"],lead:false},alternatives:[{name:"Fair value put option",badge:"tag-l",label:"Counter-offer",open:true,body:"Offer a put option at fair value instead. Achieves investor downside protection without FEMA reclassification risk."},{name:"Redemption rights",badge:"tag-c",label:"Reject",body:"Quasi-debt instrument. May trigger FEMA reclassification as ECB for foreign investors. Absolute rejection."}],legal:[{type:"india",lbl:"Companies Act 2013 §55",txt:"Redeemable preference shares are permitted under §55 only if the company has distributable profits or a fresh share issue at the time of redemption. A mandatory redemption obligation the company cannot fulfill may trigger winding-up."},{type:"fema",lbl:"FEMA — critical risk",txt:"Redemption rights may cause reclassification as debt under FEMA. If a preferred share has a redemption right, it may be treated as debt for FEMA purposes, requiring ECB compliance if the investor is foreign."}]},fv:{name:"Founder Vesting",riskType:"rp-l",riskLabel:"Low risk",ref:"Companies Act 2013 · SHA provisions",chunks:[{title:"4-year vesting / 1-year cliff — universal",tags:["low risk","market std"]},{title:"Double-trigger acceleration — standard",tags:["low risk","market std"]}],meaning:`<p>When an investor backs a startup, they're often backing the specific founders as much as the business idea. Founder vesting is a mechanism that ensures founders <strong>earn their shareholding over time</strong>, rather than owning it outright from day one. This protects investors — and co-founders — from a situation where a founder walks away early with a large equity stake they haven't fully earned.</p><p>The standard structure in India is a <em>four-year vesting schedule with a one-year cliff</em>. This means: nothing vests for the first year. After completing one full year (the "cliff"), 25% of the founder's shares vest immediately. After that, the remaining 75% vest gradually — one forty-eighth per month — over the following three years. If a founder leaves before the one-year mark, they receive no vested shares under this structure.</p><p>A critical protection for founders is <em>double-trigger acceleration</em>: if the company is acquired (trigger one) and the founder is then terminated without good cause by the new owner within 12 months (trigger two), all remaining unvested shares vest immediately. This prevents the common situation where an acquirer buys a company, fires the founders, and benefits from the unvested equity that was meant to incentivise those same founders. Single-trigger acceleration — where the acquisition alone is enough — is much harder to negotiate because it creates an incentive for founders to accept a low-value acquisition.</p>`,prevDraft:`3.1 Founder Vesting. The Founders' shareholding shall be subject to the following vesting schedule:\n(a) [25%] of each Founder's Shares shall vest on the first anniversary of the Closing Date (the "Cliff");\n(b) The remaining [75%] shall vest in equal monthly instalments over the following [36] months.\n\n3.2 Double-Trigger Acceleration. Upon the occurrence of both:\n(a) a Change of Control; and\n(b) termination of a Founder's employment without Cause within [12] months of such Change of Control,\n[100%] of such Founder's unvested Shares shall vest immediately.\n\n"Cause" means fraud, wilful misconduct, gross negligence, or material breach of SHA not cured within [30] days of written notice.`,prevDraftNote:`The definition of "Cause" is critical. It should exclude role changes, salary reductions, and relocation — each of which should constitute deemed termination without cause.`,prevLegal:[{type:"india",lbl:"Companies Act 2013",txt:"Founder vesting is a contractual SHA obligation. Share transfers pursuant to vesting must comply with AOA transfer restrictions and applicable stamp duty. Ensure the vesting mechanism is documented in both the SHA and the founders' employment or consultancy agreements."},{type:"draft",lbl:"Automatic conversion at IPO",txt:"SEBI listing regulations require conversion of all convertible instruments prior to filing the DRHP for a mainboard IPO. \"Optional\" conversion rights are effectively moot for listed companies. Ensure the qualified IPO definition uses realistic thresholds."}],summary:"4-year vesting with a 1-year cliff is universal in Indian VC deals. Double-trigger acceleration on change of control is increasingly standard. Single-trigger (acquisition alone) is investor-unfriendly and difficult to negotiate.",riskFlags:[{type:"info",icon:"ti-info-circle",text:"<strong>Single-trigger acceleration:</strong> Investor-unfriendly — it incentivises founders to accept bad M&A offers. Push for double-trigger — market standard and investor-acceptable."}],founder:"Accept 4-year/1-year as market standard. Negotiate double-trigger acceleration: if (a) company acquired AND (b) founder terminated without cause within 12 months, 100% of unvested shares accelerate.",investor:"Accept double-trigger acceleration. Resist single-trigger — it incentivises founders to accept bad M&A offers.",tactics:[{t:"Push for double-trigger, not single.",b:"Double-trigger is market standard and investor-acceptable."},{t:"Define \"termination without cause\" precisely.",b:"Define \"cause\" exhaustively — excluding role changes, salary reductions, and relocation."},{t:"Address post-acquisition role changes.",b:"If founder's role is materially changed post-acquisition, negotiate this as a deemed termination."}],market:{stats:[{v:"4yr/1yr cliff",l:"Universal in Indian VC deals"},{v:"Double-trigger",l:"Increasingly standard"},{v:"12 months",l:"Typical window post-acquisition"}],text:"4-year vesting with 1-year cliff is universal. Double-trigger acceleration is increasingly standard.",tiers:["Founders and promoters only","Not applicable to investors"],lead:false},alternatives:[{name:"4yr/1yr cliff — double-trigger acceleration",badge:"tag-l",label:"Preferred",open:true,body:"25% vests at 1-year cliff, 1/48th per month thereafter. Double-trigger: company acquired AND founder terminated without cause within 12 months → 100% acceleration."},{name:"4yr/1yr cliff — no acceleration",badge:"tag-m",label:"Acceptable",body:"Standard vesting without acceleration. Less founder-friendly but investor-acceptable."},{name:"Single-trigger acceleration",badge:"tag-h",label:"Hard to get",body:"Acquisition alone triggers full vesting. Investor-unfriendly. Difficult to negotiate."}],legal:[{type:"india",lbl:"Companies Act 2013",txt:"Founder vesting is a contractual SHA obligation. Share transfers pursuant to vesting must comply with AOA transfer restrictions and applicable stamp duty."},{type:"draft",lbl:"Automatic conversion at IPO",txt:"SEBI listing regulations require conversion of all convertible instruments prior to filing the DRHP for a mainboard IPO. \"Optional\" conversion rights are effectively moot for listed companies."}]}};
+
+let currentMode="f",sidebarOpen=true,currentClause="lp",phIdx=0;
+const phrases=["ph0","ph1","ph2","ph3","ph4"];
+
+function showScreen(id){document.querySelectorAll(".home-screen,.preview-screen,.results-screen").forEach(s=>s.classList.remove("active"));document.getElementById(id).classList.add("active")}
+function setSidebar(open){sidebarOpen=open;document.getElementById("sidebar").classList.toggle("hidden",!open)}
+function toggleSidebar(){setSidebar(!sidebarOpen)}
+
+function openPreview(el,key){
+  document.querySelectorAll(".clause").forEach(c=>c.classList.remove("active"));
+  el.classList.add("active");
+  currentClause=key;
+  const d=CLAUSES[key];
+  const label=currentMode==="f"?"Founder counsel":"Investor counsel";
+  document.getElementById("ph-title").textContent=d.name;
+  document.getElementById("ph-badge").textContent=label;
+  document.getElementById("ph-badge").className="ph-badge"+(currentMode==="i"?" inv":"");
+  document.getElementById("ph-risk").innerHTML=`<span class="risk-pill ${d.riskType}">${d.riskLabel}</span>`;
+  document.getElementById("pf-meta").textContent=d.name;
+  document.getElementById("prev-meaning").innerHTML=d.meaning;
+  document.getElementById("prev-draft").textContent=d.prevDraft;
+  document.getElementById("prev-note").textContent=d.prevDraftNote;
+  document.getElementById("prev-legal-blocks").innerHTML=d.prevLegal.map(l=>`<div class="legal-block legal-${l.type}"><div class="legal-lbl">${l.lbl}</div><div class="legal-txt">${l.txt}</div></div>`).join("");
+  switchPrevTab("summary",document.querySelector(".prev-tab"));
+  showScreen("preview-screen");
+}
+
+function deepDive(){
+  const d=CLAUSES[currentClause];
+  const label=currentMode==="f"?"Founder counsel":"Investor counsel";
+  document.getElementById("chunk-row").innerHTML=d.chunks.map(c=>`<div class="chunk-card"><div class="cc-title">${c.title}</div><div class="cc-tags">${c.tags.map(t=>`<span class="tag tag-std">${t}</span>`).join("")}</div></div>`).join("");
+  document.getElementById("pb-title").textContent=d.name;
+  document.getElementById("clause-ref").textContent=d.ref;
+  document.getElementById("query-display").textContent=d.name+" — positions & India law";
+  document.getElementById("pb-mode-badge").textContent=label;
+  document.getElementById("pb-mode-badge").className="pb-mode"+(currentMode==="i"?" inv":"");
+  document.getElementById("mode-badge").textContent=label;
+  document.getElementById("mode-badge").className="rh-badge"+(currentMode==="i"?" inv-mode":"");
+  document.getElementById("footer-meta").textContent=d.name+" · "+label;
+  let sumHtml=`<p class="summary-text-sm">${d.summary}</p>`;
+  d.riskFlags.forEach(f=>{sumHtml+=`<div class="risk-flag rf-${f.type}"><i class="ti ${f.icon} rf-icon"></i><div class="rf-txt">${f.text}</div></div>`});
+  document.getElementById("tab-summary").innerHTML=sumHtml;
+  document.getElementById("tab-positions").innerHTML=`<div class="position-grid"><div class="pos-col"><div class="pos-lbl f">Founder counsel</div><div class="pos-text">${d.founder}</div></div><div class="pos-col"><div class="pos-lbl i">Investor counsel</div><div class="pos-text">${d.investor}</div></div></div><div class="sec-lbl">Negotiation tactics</div><div class="tactic-list">${d.tactics.map((t,i)=>`<div class="tactic"><div class="tac-n">${i+1}</div><div class="tac-txt"><strong>${t.t}</strong> ${t.b}</div></div>`).join("")}</div>`;
+  document.getElementById("tab-market").innerHTML=`<div class="market-grid">${d.market.stats.map(s=>`<div class="mkt-cell"><div class="mkt-val">${s.v}</div><div class="mkt-lbl">${s.l}</div></div>`).join("")}</div><p style="font-size:12px;color:var(--txt2);line-height:1.65;margin-bottom:11px">${d.market.text}</p><div class="sec-lbl">Applicable to</div><div class="tier-wrap">${d.market.tiers.map((t,i)=>`<div class="tier-tag${d.market.lead&&i===0?" lead":""}">${t}</div>`).join("")}</div>`;
+  document.getElementById("tab-alternatives").innerHTML=`<div class="alt-list">${d.alternatives.map(a=>`<div class="alt-item"><div class="alt-top" onclick="toggleAlt(this)"><div class="alt-bullet${a.open?" on":""}"></div><div class="alt-name">${a.name}</div><span class="alt-badge ${a.badge}">${a.label}</span></div><div class="alt-body${a.open?" open":""}"><p>${a.body}</p></div></div>`).join("")}</div>`;
+  document.getElementById("tab-legal").innerHTML=d.legal.map(l=>`<div class="legal-block legal-${l.type}"><div class="legal-lbl">${l.lbl}</div><div class="legal-txt">${l.txt}</div></div>`).join("");
+  switchResultTab("summary",document.querySelector(".pb-tab"));
+  showScreen("results-screen");
+  setSidebar(false);
+}
+
+function runQuery(){
+  currentClause="lp";
+  const q=document.getElementById("search-input").value.trim();
+  document.getElementById("query-display").textContent=q||"Liquidation preference — positions & India law";
+  deepDive();
+}
+function runQueryFor(key){currentClause=key;deepDive();}
+function goHome(){showScreen("home-screen");setSidebar(true);const inp=document.getElementById("search-input");inp.style.display="none";phrases.forEach(p=>{const e=document.getElementById(p);if(e)e.style.display=""})}
+
+function switchPrevTab(name,el){
+  if(!el)el=document.querySelector(".prev-tab");
+  document.querySelectorAll(".prev-tab").forEach(t=>t.classList.remove("active"));
+  document.querySelectorAll(".ppanel").forEach(p=>p.classList.remove("active"));
+  el.classList.add("active");
+  document.getElementById("ppanel-"+name).classList.add("active");
+}
+function switchResultTab(name,el){
+  if(!el)el=document.querySelector(".pb-tab");
+  document.querySelectorAll(".pb-tab").forEach(t=>t.classList.remove("active"));
+  document.querySelectorAll(".tab-panel").forEach(p=>p.classList.remove("active"));
+  el.classList.add("active");
+  document.getElementById("tab-"+name).classList.add("active");
+}
+function toggleAlt(el){
+  const body=el.nextElementSibling,bullet=el.querySelector(".alt-bullet"),isOpen=body.classList.contains("open");
+  el.closest(".alt-list").querySelectorAll(".alt-body").forEach(b=>b.classList.remove("open"));
+  el.closest(".alt-list").querySelectorAll(".alt-bullet").forEach(b=>b.classList.remove("on"));
+  if(!isOpen){body.classList.add("open");bullet.classList.add("on")}
+}
+function setMode(m){
+  currentMode=m;
+  document.querySelectorAll(".mp-opt").forEach(el=>el.classList.remove("active-f","active-i"));
+  document.querySelector(`[data-mode="${m}"]`).classList.add(m==="f"?"active-f":"active-i");
+}
+let phTimer=setInterval(()=>{
+  const cur=document.getElementById(phrases[phIdx]);
+  cur.classList.remove("visible");cur.classList.add("exit");
+  setTimeout(()=>{cur.classList.remove("exit");phIdx=(phIdx+1)%5;document.getElementById(phrases[phIdx]).classList.add("visible")},220);
+},3200);
+document.getElementById("search-outer").addEventListener("click",()=>{
+  const inp=document.getElementById("search-input");
+  inp.style.display="block";
+  phrases.forEach(p=>{const e=document.getElementById(p);if(e)e.style.display="none"});
+  inp.focus();
+});
+document.getElementById("search-input").addEventListener("keydown",e=>{if(e.key==="Enter")runQuery()});
+</script>
+</body>
+</html>
